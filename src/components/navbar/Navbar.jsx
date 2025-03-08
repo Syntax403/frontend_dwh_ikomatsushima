@@ -1,27 +1,34 @@
-// Navbar.jsx
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import logo from '../../assets/MatsushimaChile-Logo.png'; // Ruta de tu logo
-import { navRoutes } from '../../config/Routes';
-import { baseLinkClasses, activeLinkClasses } from '../../config/CSS';
+import React, { useState, useRef, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import logo from "../../assets/MatsushimaChile-Logo.png"; // Ruta del logo
+import { navRoutes } from "../../config/Routes";
+import { baseLinkClasses, activeLinkClasses } from "../../config/CSS";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
 
-  // Alterna el estado del menú móvil
-  const toggleMenu = () => setIsOpen(!isOpen);
+  // Alternar el estado del menú móvil
+  const toggleMenu = () => setIsOpen((prev) => !prev);
 
-  // Cierra el menú móvil al hacer clic en un enlace
-  const handleLinkClick = () => setIsOpen(false);
+  // Cerrar menú móvil al hacer clic fuera de él
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  // Clases base y activas para los enlaces
-  
-  // Función para renderizar los enlaces (para escritorio)
+  // Función para renderizar los enlaces
   const renderNavLinks = () =>
     navRoutes.map((route) => (
       <NavLink
         key={route.path}
         to={route.path}
-        onClick={handleLinkClick}
+        onClick={() => setIsOpen(false)}
         className={({ isActive }) =>
           isActive ? `${baseLinkClasses} ${activeLinkClasses}` : baseLinkClasses
         }
@@ -30,55 +37,27 @@ const Navbar = () => {
       </NavLink>
     ));
 
-  // Función para renderizar los enlaces en el menú móvil
-  const renderMobileLinks = () =>
-    navRoutes.map((route) => (
-      <NavLink
-        key={route.path}
-        to={route.path}
-        onClick={handleLinkClick}
-        className={({ isActive }) =>
-          isActive
-            ? `block ${baseLinkClasses} ${activeLinkClasses}`
-            : `block ${baseLinkClasses}`
-        }
-      >
-        {route.label}
-      </NavLink>
-    ));
-
   return (
-    <nav
-      className="bg-gray-200 text-blue-800 border-b-4 border-red-600 rounded-b-lg shadow-lg"
-      role="navigation"
-    >
+    <nav className="bg-gray-200 text-blue-800 border-b-4 border-red-600 shadow-lg rounded-b-lg">
       <div className="container mx-auto flex justify-between items-center p-4">
-        {/* Logo en lugar del texto */}
-        <div className="flex items-center">
-          <NavLink to="/" onClick={handleLinkClick}>
-            <img
-              src={logo}
-              alt="IKO Matsushima Chile"
-              className="h-14 w-auto" // Ajusta el tamaño según tu preferencia
-            />
-          </NavLink>
-        </div>
+        {/* Logo */}
+        <NavLink to="/" onClick={() => setIsOpen(false)}>
+          <img src={logo} alt="IKO Matsushima Chile" className="h-14 w-auto" />
+        </NavLink>
 
-        {/* Menú para pantallas medianas y grandes */}
-        <div className="hidden md:flex space-x-6">
-          {renderNavLinks()}
-        </div>
+        {/* Menú para escritorio */}
+        <div className="hidden md:flex space-x-6">{renderNavLinks()}</div>
 
-        {/* Botón para menú móvil */}
+        {/* Botón para abrir/cerrar menú móvil */}
         <button
           onClick={toggleMenu}
-          aria-label="Toggle mobile menu"
+          aria-label="Abrir menú"
           aria-expanded={isOpen}
           className="md:hidden focus:outline-none"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 transition-transform duration-300"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -102,14 +81,15 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Menú móvil */}
-      {isOpen && (
-        <div className="md:hidden border-s-2 bg-gray-200 transition-all duration-300 rounded-b-lg shadow-lg">
-          <div className="px-4 pt-2 pb-4 space-y-2">
-            {renderMobileLinks()}
-          </div>
-        </div>
-      )}
+      {/* Menú móvil con animación */}
+      <div
+        ref={menuRef}
+        className={`md:hidden bg-gray-200 rounded-b-lg shadow-lg transition-transform duration-300 ${
+          isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        }`}
+      >
+        <div className="px-4 pt-2 pb-4 space-y-2">{renderNavLinks()}</div>
+      </div>
     </nav>
   );
 };
