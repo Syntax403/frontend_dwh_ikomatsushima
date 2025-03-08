@@ -3,4 +3,5 @@ export const navRoutes = [
   { path: '/nosotros', label: 'Nosotros' },
   { path: '/actividades', label: 'Actividades' },
   { path: '/contacto', label: 'Contacto' },
+  {path: '/noticias', label: 'Noticias'}
 ];

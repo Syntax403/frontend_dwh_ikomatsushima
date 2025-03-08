@@ -4,9 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layout/GeneralLayout';
 import Home from './pages/Home';
 import Nosotros from './pages/Nosotros';
-import Clases from './pages/Clases';
-import Contacto from './pages/Contacto';
 import Activities from './pages/Actividades';
+import Noticias from './pages/Noticias';
 
 const App = () => {
   return (
@@ -16,8 +15,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/actividades" element={<Activities />} />
-          <Route path="/clases" element={<Clases />} />
-          <Route path="/contacto" element={<Contacto />} />
+          <Route path="/noticias" element={<Noticias />} />
         </Routes>
       </Layout>
     </Router>
