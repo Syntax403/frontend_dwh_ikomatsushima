@@ -5,30 +5,31 @@ import heroImage from "../../assets/hero.avif";
 const HeroSection = () => {
   return (
     <section
-      className="relative w-full h-[70vh] bg-cover bg-center flex items-center justify-center"
+      className="relative w-full h-[75vh] sm:h-[80vh] md:h-[85vh] bg-cover bg-center flex items-center justify-center"
       style={{ backgroundImage: `url(${heroImage})` }}
       aria-label="Bienvenidos a IKO Matsushima Chile"
     >
-      {/* Degradado superpuesto para mejorar la legibilidad */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-70"></div>
-      
-      <div className="relative z-10 container mx-auto px-4 text-center">
-        {/* Sección oscura para resaltar el título */}
-        <div className="bg-black bg-opacity-75 inline-block p-4 rounded-lg shadow-md">
-          <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
-            Bienvenidos a IKO Matsushima Chile
+      {/* Degradado para mejorar legibilidad */}
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+
+      {/* Contenido centrado */}
+      <div className="relative z-10 container mx-auto px-6 text-center">
+        {/* Contenedor del título con animación */}
+        <div className="bg-black bg-opacity-70 inline-block px-10 py-8 rounded-lg shadow-2xl backdrop-blur-md animate-fade-in">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold text-white mb-4 animate-slide-up">
+            Bienvenidos a <span className="text-red-500">IKO Matsushima Chile</span>
           </h1>
-        <p className="mt-4 text-lg md:text-xl text-white drop-shadow">
-          Descubre la disciplina y el legado de Sosai Masutatsu Oyama en nuestro dojo
-        </p>
+          <p className="mt-4 text-lg sm:text-xl md:text-2xl text-white drop-shadow-lg max-w-3xl mx-auto animate-fade-in">
+            Descubre la disciplina y el legado de <strong>Sosai Masutatsu Oyama</strong> en nuestro dojo.
+          </p>
         </div>
-        
-        
+
+        {/* Botón con efecto de pulsación */}
         <Link
           to="/actividades"
-          className="mt-8 inline-block px-8 py-3 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition duration-300 shadow-md"
+          className="mt-12 inline-block px-12 py-4 bg-red-600 text-white font-semibold text-lg rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-2xl animate-pulse"
         >
-          Explora nuestras actividades y participa con nosotros
+          Explora nuestras actividades
         </Link>
       </div>
     </section>
