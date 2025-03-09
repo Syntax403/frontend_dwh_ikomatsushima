@@ -1,23 +1,21 @@
 import React, { useState } from "react";
-import { newsData } from "../data/NewsData";
-import NewsCard from "../components/News/NewsCard";
-import heroImage from "../assets/news-hero.avif"; // Imagen para el Hero
+import heroImage from "../assets/dojo-hero.jpg"; // Imagen para el Hero
+import { dojosData } from "../data/DojosData"; // Datos de dojos
+import DojoCard from "../components/Dojos/DojoCard"; // Componente para las tarjetas de dojos
 
-const Noticias = () => {
+const Dojos = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   // Extraer categorías únicas
-  const categories = [...new Set(newsData.map((news) => news.category))];
+  const categories = [...new Set(dojosData.map((dojo) => dojo.category))];
 
-  // Filtrar noticias por categoría
-  const filteredNews = newsData.filter((news) =>
-    selectedCategory === "" ? true : news.category === selectedCategory
+  // Filtrar dojos por categoría
+  const filteredDojos = dojosData.filter((dojo) =>
+    selectedCategory === "" ? true : dojo.category === selectedCategory
   );
 
-  // Última noticia (la más reciente por fecha)
-  const latestNews = [...newsData].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )[0];
+  // Dojo más cercano (simulación, puede ser reemplazado con API de geolocalización)
+  const closestDojo = dojosData[0];
 
   return (
     <section className="bg-gray-100">
@@ -29,38 +27,43 @@ const Noticias = () => {
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="relative z-10 text-white px-4">
-          <h1 className="text-5xl font-extrabold">Noticias</h1>
+          <h1 className="text-5xl font-extrabold">Dojos</h1>
           <p className="mt-4 text-lg max-w-2xl mx-auto">
-            Mantente informado con las últimas novedades y eventos importantes.
+            Encuentra el dojo más cercano y mejora tus habilidades en Karate.
           </p>
         </div>
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Layout con Última Noticia + Sección de Noticias */}
+        {/* Layout con Dojo Cercano + Sección de Dojos */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Última Noticia */}
+          {/* Dojo más cercano */}
           <div className="lg:col-span-1 bg-white p-6 shadow-md rounded-lg">
             <h2 className="text-2xl font-bold text-blue-900 mb-4">
-              Noticia Reciente
+              Dojo más Cercano por Ubicación
             </h2>
-            {latestNews && (
+            {closestDojo && (
               <div>
                 <img
-                  src={latestNews.image}
-                  alt={latestNews.title}
+                  src={closestDojo.image}
+                  alt={closestDojo.name}
                   className="w-full h-48 object-cover rounded-md mb-4"
                 />
-                <h3 className="text-xl font-semibold">{latestNews.title}</h3>
-                <p className="text-gray-600 text-sm">
-                  {new Date(latestNews.date).toLocaleDateString()}
-                </p>
-                <p className="text-gray-700 mt-2">{latestNews.description}</p>
+                <h3 className="text-xl font-semibold">{closestDojo.name}</h3>
+                <p className="text-gray-600 text-sm">{closestDojo.location}</p>
+                <a
+                  href={closestDojo.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 block text-center bg-red-600 text-white font-bold py-2 rounded-md hover:bg-red-700 transition-all"
+                >
+                  Ir a Maps
+                </a>
               </div>
             )}
           </div>
 
-          {/* Sección de Noticias */}
+          {/* Sección de Dojos */}
           <div className="lg:col-span-2">
             {/* Filtros */}
             <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -72,7 +75,7 @@ const Noticias = () => {
                 }`}
                 onClick={() => setSelectedCategory("")}
               >
-                Todas
+                Todos
               </button>
               {categories.map((category) => (
                 <button
@@ -89,13 +92,13 @@ const Noticias = () => {
               ))}
             </div>
 
-            {/* Tarjetas de Noticias */}
+            {/* Tarjetas de Dojos */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {filteredNews.length > 0 ? (
-                filteredNews.map((news) => <NewsCard key={news.id} news={news} />)
+              {filteredDojos.length > 0 ? (
+                filteredDojos.map((dojo) => <DojoCard key={dojo.id} dojo={dojo} />)
               ) : (
                 <p className="text-center text-gray-600 text-lg col-span-full">
-                  No hay noticias disponibles en esta categoría.
+                  No hay dojos disponibles en esta categoría.
                 </p>
               )}
             </div>
@@ -106,4 +109,4 @@ const Noticias = () => {
   );
 };
 
-export default Noticias;
+export default Dojos;

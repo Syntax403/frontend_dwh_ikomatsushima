@@ -20,7 +20,7 @@ const HeroSection = () => {
             Bienvenidos a <span className="text-red-500">IKO Matsushima Chile</span>
           </h1>
           <p className="mt-4 text-lg sm:text-xl md:text-2xl text-white drop-shadow-lg max-w-3xl mx-auto animate-fade-in">
-            Descubre la disciplina y el legado de <strong>Sosai Masutatsu Oyama</strong> en nuestro dojo.
+            Seguiré a mi dios y eternas verdades y <strong > jamás olvidaré la verdadera virtud de la humildad.</strong>
           </p>
         </div>
 

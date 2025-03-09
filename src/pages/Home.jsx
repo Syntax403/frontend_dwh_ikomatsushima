@@ -2,7 +2,7 @@
 import React from 'react';
 import HeroSection from '../components/Home/HeroSection';
 import ManagerSection from '../components/Home/ManagerSection';
-// import EventSection from '../components/Home/EventSection';
+import EventSection from '../components/Home/EventSection';
 
 const Home = () => {
   return (
@@ -24,7 +24,7 @@ const Home = () => {
 
       
       {/* Sección de Eventos */}
-      {/* <EventSection /> */}
+      <EventSection />
     </div>
   );
 };
