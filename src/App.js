@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Nosotros from './pages/Nosotros';
 import Activities from './pages/Actividades';
 import Noticias from './pages/Noticias';
+import Dojos from './pages/Dojos';
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/actividades" element={<Activities />} />
           <Route path="/noticias" element={<Noticias />} />
+          <Route path="/dojos" element={<Dojos />} />
         </Routes>
       </Layout>
     </Router>

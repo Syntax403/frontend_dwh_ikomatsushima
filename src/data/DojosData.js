@@ -1,0 +1,32 @@
+export const dojosData = [
+  {
+    id: 1,
+    name: "Dojo Central",
+    instructor: "Sensei Juan Pérez",
+    location: "Santiago, Chile",
+    zone: "Zona Centro",
+    image: "/images/dojo_central.jpg",
+    instructorImage: "/images/instructor_juan.jpg",
+    mapsUrl: "https://maps.google.com?q=Dojo+Central+Santiago",
+  },
+  {
+    id: 2,
+    name: "Dojo Bushido",
+    instructor: "Sensei María González",
+    location: "Antofagasta, Chile",
+    zone: "Zona Norte",
+    image: "/images/dojo_bushido.jpg",
+    instructorImage: "/images/instructor_maria.jpg",
+    mapsUrl: "https://maps.google.com?q=Dojo+Bushido+Antofagasta",
+  },
+  {
+    id: 3,
+    name: "Dojo Samurai",
+    instructor: "Sensei Carlos Rojas",
+    location: "Concepción, Chile",
+    zone: "Zona Sur",
+    image: "/images/dojo_samurai.jpg",
+    instructorImage: "/images/instructor_carlos.jpg",
+    mapsUrl: "https://maps.google.com?q=Dojo+Samurai+Concepción",
+  },
+];
