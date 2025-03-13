@@ -9,6 +9,8 @@ import Nosotros from './pages/Nosotros';
 import Activities from './pages/Actividades';
 import Noticias from './pages/Noticias';
 import Dojos from './pages/Dojos';
+import Kyokushin from './pages/Kyokushin';
+import Error404 from './pages/Error404.jsx';
 
 const App = () => {
   return (
@@ -21,6 +23,8 @@ const App = () => {
             <Route path="/actividades" element={<Activities />} />
             <Route path="/noticias" element={<Noticias />} />
             <Route path="/dojos" element={<Dojos />} />
+            <Route path='/kyokushin' element={<Kyokushin />} />
+            <Route path="*" element={<Error404 />} />
           </Routes>
         </Layout>
       </Router>

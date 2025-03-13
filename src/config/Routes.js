@@ -3,5 +3,6 @@ export const navRoutes = [
   { path: '/nosotros', label: 'Nosotros' },
   { path: '/actividades', label: 'Actividades' },
   { path: '/dojos', label: 'Nuestros Dojos' },
-  {path: '/noticias', label: 'Noticias'}
+  { path: '/noticias', label: 'Noticias' },
+  {path: '/kyokushin', label: 'Kyokushin'}
 ];
