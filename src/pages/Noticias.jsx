@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { newsData } from "../data/NewsData";
 import NewsCard from "../components/News/NewsCard";
 import heroImage from "../assets/news-hero.avif"; // Imagen para el Hero
+import SocialBanner from "../components/banners/SocialBanner";
 
 const Noticias = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -22,6 +23,8 @@ const Noticias = () => {
   return (
     <section className="bg-gray-100">
       {/* Hero Section */}
+      <SocialBanner />
+      
       <div className="relative w-full h-[35vh] bg-cover bg-center flex items-center justify-center text-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
