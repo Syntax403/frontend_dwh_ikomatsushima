@@ -76,7 +76,7 @@ export const branchChiefs = [
   },
 ];
 
-export const blackBelts = [
+export const blackBeltsData = [
   {
     id: 8,
     name: "Senpai Carlos Muñoz",

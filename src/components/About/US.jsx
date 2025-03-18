@@ -1,73 +1,79 @@
-import React from "react";
-import { leaders, directors, branchChiefs, blackBelts } from "../../data/teamData"; // Datos del equipo
+import React, { useState } from "react";
+import { useGetDirectorsQuery, useGetBranchChiefsQuery, useGetBlackBeltsQuery } from "../redux/api/dojosApi";
+import SectionTitle from "../components/About/SectionTitle";
+import TeamGrid from "../components/About/TeamGrid";
+import heroImage from "../assets/About-Hero.jpg";
 
-const SectionTitle = ({ title }) => (
-  <div className="text-center mb-12">
-    <h2 className="text-3xl sm:text-4xl font-bold text-red-600 mb-3">{title}</h2>
-    <div className="w-24 h-1 bg-red-600 mx-auto rounded-full"></div>
-  </div>
-);
+const AboutUs = () => {
+  const [selectedCategory, setSelectedCategory] = useState("leaders");
 
-const TeamGrid = ({ data }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {data.map((person) => (
-      <div
-        key={person.id}
-        className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-transform duration-300 hover:-translate-y-2"
-      >
-        <div className="relative w-full h-56 overflow-hidden">
-          <img
-            src={person.image}
-            alt={person.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-        </div>
-        <div className="p-4 text-center">
-          <h3 className="text-xl font-bold text-blue-900">{person.name}</h3>
-          <p className="text-gray-600 text-sm">{person.title}</p>
-          <div className="w-16 h-1 bg-red-600 mx-auto mt-3 rounded-full"></div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
+  // Llamar a la API con RTK Query
+  const { data: directors, isLoading: loadingDirectors, error: errorDirectors } = useGetDirectorsQuery();
+  const { data: branchChiefs, isLoading: loadingBranchChiefs, error: errorBranchChiefs } = useGetBranchChiefsQuery();
+  const { data: blackBelts, isLoading: loadingBlackBelts, error: errorBlackBelts } = useGetBlackBeltsQuery();
 
-const Us = () => {
+  // Definir categorías con datos de la API
+  const categories = {
+    leaders: { title: "Nuestros Líderes", data: [] }, // Puedes añadir datos estáticos aquí si es necesario
+    directors: { title: "Nuestros Directores", data: directors || [] },
+    branchChiefs: { title: "Branch Chief y Dojo Operadores", data: branchChiefs || [] },
+    blackBelts: { title: "Nuestros Cinturones Negros", data: blackBelts || [] },
+  };
+
   return (
-    <section className="py-16 bg-gray-100">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-extrabold text-blue-900">Nosotros</h1>
-          <p className="mt-4 text-lg text-gray-700 max-w-2xl mx-auto">
+    <section className="bg-gray-100">
+      {/* Hero Section */}
+      <div
+        className="relative w-full h-[25vh] bg-cover bg-center flex items-center justify-center text-center rounded-br-sm"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="relative z-10 text-white px-4">
+          <h1 className="text-5xl font-extrabold">Nosotros</h1>
+          <p className="mt-4 text-lg max-w-2xl mx-auto">
             Conoce a las personas que lideran y representan a IKO Matsushima Chile.
           </p>
         </div>
+      </div>
 
-        {/* Nuestros Líderes */}
-        <SectionTitle title="Nuestros Líderes" />
-        <TeamGrid data={leaders} />
-
-        {/* Nuestros Directores */}
-        <div className="mt-16">
-          <SectionTitle title="Nuestros Directores" />
-          <TeamGrid data={directors} />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Filtro de Categorías */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {Object.keys(categories).map((key) => (
+            <button
+              key={key}
+              onClick={() => setSelectedCategory(key)}
+              className={`px-6 py-2 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 ${
+                selectedCategory === key
+                  ? "bg-red-600 text-white shadow-md"
+                  : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
+              }`}
+            >
+              {categories[key].title}
+            </button>
+          ))}
         </div>
 
-        {/* Branch Chief y Dojo Operadores */}
-        <div className="mt-16">
-          <SectionTitle title="Branch Chief y Dojo Operadores" />
-          <TeamGrid data={branchChiefs} />
-        </div>
+        {/* Sección de transición entre categorías */}
+        <div key={selectedCategory} className="animate-fade-in">
+          <SectionTitle title={categories[selectedCategory].title} />
 
-        {/* Nuestros Cinturones Negros */}
-        <div className="mt-16">
-          <SectionTitle title="Nuestros Cinturones Negros" />
-          <TeamGrid data={blackBelts} />
+          {/* Mostrar mensajes de carga o error */}
+          {(selectedCategory === "directors" && loadingDirectors) ||
+          (selectedCategory === "branchChiefs" && loadingBranchChiefs) ||
+          (selectedCategory === "blackBelts" && loadingBlackBelts) ? (
+            <p className="text-center text-gray-500">Cargando...</p>
+          ) : (selectedCategory === "directors" && errorDirectors) ||
+            (selectedCategory === "branchChiefs" && errorBranchChiefs) ||
+            (selectedCategory === "blackBelts" && errorBlackBelts) ? (
+            <p className="text-center text-red-500">Error al cargar datos.</p>
+          ) : (
+            <TeamGrid data={[...categories[selectedCategory].data]} />
+          )}
         </div>
       </div>
     </section>
   );
 };
 
-export default Us;
+export default AboutUs;

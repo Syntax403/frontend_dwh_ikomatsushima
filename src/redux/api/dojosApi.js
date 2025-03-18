@@ -8,7 +8,16 @@ export const dojosApi = createApi({
       query: () => "Dojos/list",
       transformResponse: (response) => response.results, // 🔥 Extraer solo los resultados
     }),
+    getDirectors: builder.query({
+      query: () => "Dojos/list?is_Director==true",
+    }),
+    getBranchChiefs: builder.query({
+      query: () => "Dojos/list?is_branch_chief=true",
+    }),
+    getBlackBelts: builder.query({
+      query: () => "Dojos/list",
+    }),
   }),
 });
 
-export const { useGetDojosQuery } = dojosApi;
+export const { useGetDojosQuery, useGetDirectorsQuery, useGetBranchChiefsQuery,useGetBlackBeltsQuery  } = dojosApi;

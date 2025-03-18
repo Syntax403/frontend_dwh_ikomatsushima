@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
+import { useGetActividadesQuery } from "../../redux/api/CategoryApi"; // Asegúrate de la ruta correcta
 
 const ActivityFilters = ({ 
   selectedCategory, 
   setSelectedCategory, 
   selectedYear, 
   setSelectedYear, 
-  categories, 
   years, 
-  activityCount // Nuevo prop para saber cuántas actividades hay
+  activityCount 
 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Llamar a la API con RTK Query
+  const { data: categories, error, isLoading } = useGetActividadesQuery();
 
   // Detectar si es una pantalla pequeña
   useEffect(() => {
@@ -34,7 +37,7 @@ const ActivityFilters = ({
         </button>
       )}
 
-      {/* Contenedor de filtros (visible en escritorio o dentro del modal en móviles) */}
+      {/* Contenedor de filtros */}
       <div
         className={`${
           isMobile
@@ -55,11 +58,15 @@ const ActivityFilters = ({
           </button>
         )}
 
-        
-
         {/* Filtro por Categoría */}
         <div className="mb-4">
           <h3 className="text-lg font-medium text-gray-700 mb-2">Categoría</h3>
+          
+          {/* Mostrar "Cargando..." si la API está en proceso */}
+          {isLoading && <p className="text-gray-500">Cargando categorías...</p>}
+          {/* Mostrar mensaje si hay un error */}
+          {error && <p className="text-red-500">Error al cargar categorías</p>}
+
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedCategory("")}
@@ -71,19 +78,22 @@ const ActivityFilters = ({
             >
               Todas
             </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-md font-medium transition-all ${
-                  selectedCategory === category
-                    ? "bg-red-600 text-white shadow-md"
-                    : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+
+            {/* Renderizar las categorías obtenidas de la API */}
+            {categories &&
+              categories.map((category) => (
+                <button
+                  key={category.id} // Usa 'id' en lugar del nombre para evitar claves duplicadas
+                  onClick={() => setSelectedCategory(category.name)}
+                  className={`px-4 py-2 rounded-md font-medium transition-all ${
+                    selectedCategory === category.name
+                      ? "bg-red-600 text-white shadow-md"
+                      : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
           </div>
         </div>
 

@@ -1,19 +1,55 @@
-import React, { useState } from "react";
-import { leaders, directors, branchChiefs, blackBelts } from "../data/teamData"; // Datos del equipo
+import React, { useState, useEffect } from "react";
+import {
+  useGetDirectorsQuery,
+  useGetBranchChiefsQuery,
+  useGetBlackBeltsQuery,
+} from "../redux/api/dojosApi";
 import SectionTitle from "../components/About/SectionTitle";
 import TeamGrid from "../components/About/TeamGrid";
-import heroImage from "../assets/About-Hero.jpg"; // Imagen para el hero
+import LeaderGrid from "../components/About/LeaderGrid"; // 🔥 Importar LeaderGrid
+import heroImage from "../assets/About-Hero.jpg";
+import { leaders } from "../data/teamData";
 
 const AboutUs = () => {
-  // Estado para la categoría seleccionada
   const [selectedCategory, setSelectedCategory] = useState("leaders");
+  const [blackBeltsAllData, setBlackBeltsAllData] = useState([]); // 🔥 Iniciar con []
 
-  // Definimos las categorías disponibles
+  // Obtener datos de la API con RTK Query
+  const { data: directorsApi, isLoading: loadingDirectors, error: errorDirectors } = useGetDirectorsQuery();
+  const { data: branchChiefsApi, isLoading: loadingBranchChiefs, error: errorBranchChiefs } = useGetBranchChiefsQuery();
+  const { data: blackBeltsApi, isLoading: loadingBlackBelts, error: errorBlackBelts } = useGetBlackBeltsQuery();
+
+  // 🔥 Cargar todas las páginas de cinturones negros
+  useEffect(() => {
+    if (blackBeltsApi?.results) {
+      let allResults = [...blackBeltsApi.results]; // Datos de la primera página
+      let nextPage = blackBeltsApi.next; // URL de la siguiente página
+
+      const fetchNextPage = async () => {
+        while (nextPage) {
+          try {
+            const response = await fetch(nextPage);
+            const data = await response.json();
+            allResults = [...allResults, ...data.results]; // Agregar nuevos resultados
+            nextPage = data.next; // Actualizar siguiente página
+          } catch (error) {
+            console.error("Error cargando páginas de cinturones negros:", error);
+            break;
+          }
+        }
+        setBlackBeltsAllData(allResults.length ? allResults : []); // Asegurar array
+      };
+
+      fetchNextPage();
+    }
+  }, [blackBeltsApi]);
+
+  // 🔥 Definir categorías con datos completos y valores por defecto
   const categories = {
-    leaders: { title: "Nuestros Líderes", data: leaders },
-    directors: { title: "Nuestros Directores", data: directors },
-    branchChiefs: { title: "Branch Chief y Dojo Operadores", data: branchChiefs },
-    blackBelts: { title: "Nuestros Cinturones Negros", data: blackBelts },
+    leaders: { title: "Nuestros Líderes", data: leaders || [], component: LeaderGrid },
+    directors: { title: "Nuestros Directores", data: directorsApi?.results || [], component: TeamGrid },
+    branchChiefs: { title: "Branch Chief y Dojo Operadores", data: branchChiefsApi?.results || [], component: TeamGrid },
+    blackBelts: { title: "Nuestros Cinturones Negros", data: blackBeltsAllData.length > 0 ? blackBeltsAllData : blackBeltsApi?.results || [], component: TeamGrid },
   };
 
   return (
@@ -53,7 +89,21 @@ const AboutUs = () => {
         {/* Sección de transición entre categorías */}
         <div key={selectedCategory} className="animate-fade-in">
           <SectionTitle title={categories[selectedCategory].title} />
-          <TeamGrid data={[...categories[selectedCategory].data]} />
+
+          {/* Mostrar mensajes de carga o error */}
+          {(selectedCategory === "directors" && loadingDirectors) ||
+          (selectedCategory === "branchChiefs" && loadingBranchChiefs) ||
+          (selectedCategory === "blackBelts" && loadingBlackBelts) ? (
+            <p className="text-center text-gray-500">Cargando...</p>
+          ) : (selectedCategory === "directors" && errorDirectors) ||
+            (selectedCategory === "branchChiefs" && errorBranchChiefs) ||
+            (selectedCategory === "blackBelts" && errorBlackBelts) ? (
+            <p className="text-center text-red-500">Error al cargar datos.</p>
+          ) : Array.isArray(categories[selectedCategory].data) ? ( // 🔥 Verificar si es un array antes de renderizar
+            React.createElement(categories[selectedCategory].component, { data: categories[selectedCategory].data }) // 🔥 Renderiza el componente dinámicamente
+          ) : (
+            <p className="text-center text-gray-500">No hay datos disponibles.</p>
+          )}
         </div>
       </div>
     </section>
