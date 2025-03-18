@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useGetDojosQuery } from "../redux/api/dojosApi";
 import { useGlobalContext } from "../context/GlobalContext";
 import DojoCard from "../components/Dojos/DojoCard";
@@ -6,36 +6,32 @@ import heroImage from "../assets/dojo-hero.jpg";
 
 const Dojos = () => {
   const { setLoading } = useGlobalContext();
-  const { data: dojos, error, isLoading } = useGetDojosQuery();
-
   const [selectedZone, setSelectedZone] = useState("");
+  const [page, setPage] = useState(1);
 
-  // Manejo del loader global
+  // Llamada a la API con filtros dinámicos
+  const { data, error, isFetching } = useGetDojosQuery({
+    page,
+    zona: selectedZone, // Enviar la zona directamente al backend
+  });
+
   useEffect(() => {
-    if (setLoading) setLoading(isLoading);
-  }, [isLoading, setLoading]);
+    if (setLoading) setLoading(isFetching);
+  }, [isFetching, setLoading]);
 
-  // Función para asignar la zona correcta
-  const getZonaReal = (dojo) => {
-    if (dojo.zona === "Nacional") return "Centro";
-    return dojo.zona || "Sin Zona";
+  // Datos de los dojos
+  const dojos = data?.results || [];
+  const totalPages = Math.ceil(data?.count / 3) || 1;
+  const hasNextPage = Boolean(data?.next);
+  const hasPrevPage = Boolean(data?.previous);
+
+  const handleNextPage = () => {
+    if (hasNextPage) setPage(page + 1);
   };
 
-  // Asegurar que `dojos` es un array antes de usar useMemo
-  const validDojos = useMemo(() => (Array.isArray(dojos) ? dojos : []), [dojos]);
-
-  // Extraer zonas únicas (asignando "Nacional" a "Centro")
-  const zones = useMemo(() => {
-    const zonasUnicas = [...new Set(validDojos.map((dojo) => getZonaReal(dojo)))];
-    return zonasUnicas.filter((zona) => ["Norte", "Centro", "Sur"].includes(zona)); // Solo mostrar zonas válidas
-  }, [validDojos]);
-
-  // Filtrar dojos por zona seleccionada
-  const filteredDojos = useMemo(() => {
-    return selectedZone
-      ? validDojos.filter((dojo) => getZonaReal(dojo) === selectedZone)
-      : validDojos;
-  }, [validDojos, selectedZone]);
+  const handlePrevPage = () => {
+    if (hasPrevPage) setPage(page - 1);
+  };
 
   if (error) {
     return <p className="text-center text-red-600 text-lg mt-10">Error al cargar los dojos.</p>;
@@ -69,7 +65,7 @@ const Dojos = () => {
           >
             Todas las Zonas
           </button>
-          {zones.map((zone) => (
+          {["Norte", "Centro", "Sur"].map((zone) => (
             <button
               key={zone}
               className={`px-4 py-2 rounded-md font-medium ${
@@ -82,16 +78,41 @@ const Dojos = () => {
           ))}
         </div>
 
-        {/* Tarjetas de Dojos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filteredDojos.length > 0 ? (
-            filteredDojos.map((dojo) => <DojoCard key={dojo.id} dojo={dojo} />)
+        {/* Tarjetas de Dojos con mejor responsividad */}
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
+          {dojos.length > 0 ? (
+            dojos.map((dojo) => <DojoCard key={dojo.id} dojo={dojo} />)
           ) : (
             <p className="text-center text-gray-600 text-lg col-span-full">
               No hay dojos disponibles en esta zona.
             </p>
           )}
         </div>
+
+        {/* Paginación (se oculta si solo hay una página) */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8 space-x-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={!hasPrevPage}
+              className={`px-4 py-2 rounded-md font-medium ${
+                !hasPrevPage ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700"
+              }`}
+            >
+              Anterior
+            </button>
+            <span className="px-4 py-2 font-medium">Página {page} de {totalPages}</span>
+            <button
+              onClick={handleNextPage}
+              disabled={!hasNextPage}
+              className={`px-4 py-2 rounded-md font-medium ${
+                !hasNextPage ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700"
+              }`}
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

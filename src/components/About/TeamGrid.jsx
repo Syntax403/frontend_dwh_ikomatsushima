@@ -1,8 +1,6 @@
 import React from "react";
-import { MapPin } from "lucide-react"; // 📍 Icono de ubicación
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import chileFlag from "../../assets/ChileFlag.avif";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
