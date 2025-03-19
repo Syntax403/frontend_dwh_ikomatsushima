@@ -13,9 +13,13 @@ const ActivityCard = ({ activity }) => {
       >
         {/* Imagen y Categoría */}
         <div className="relative">
-          <img src={activity.image} alt={activity.title} className="w-full h-56 object-cover" />
+          <img
+            src={activity.thumbnail || "/media/default-placeholder.png"} // 🔥 Asegurar imagen
+            alt={activity.title}
+            className="w-full h-56 object-cover"
+          />
           <span className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 text-sm font-medium rounded-lg shadow-md">
-            {activity.category}
+            {activity.category || "Sin categoría"} {/* 🔥 Mostrar nombre de la categoría */}
           </span>
         </div>
 
@@ -23,17 +27,19 @@ const ActivityCard = ({ activity }) => {
         <div className="p-5">
           <h3 className="text-2xl font-extrabold text-blue-900 mb-2">{activity.title}</h3>
 
-          {/* Fecha */}
+          {/* Fecha del Evento */}
           <div className="flex items-center text-gray-600 text-sm mb-2">
             <Calendar className="w-4 h-4 mr-2" />
-            {new Date(activity.date).toLocaleDateString()}
+            {activity.eventDate ? new Date(activity.eventDate).toLocaleDateString() : "Fecha no disponible"}
           </div>
 
-          {/* Ubicación */}
-          <div className="flex items-center text-gray-800 font-semibold mb-4">
-            <MapPin className="w-4 h-4 mr-2 text-red-500" />
-            {activity.location}
-          </div>
+          {/* Ubicación (si está disponible) */}
+          {activity.location && (
+            <div className="flex items-center text-gray-800 font-semibold mb-4">
+              <MapPin className="w-4 h-4 mr-2 text-red-500" />
+              {activity.location}
+            </div>
+          )}
 
           {/* Botón para abrir detalles */}
           <button
@@ -61,22 +67,28 @@ const ActivityCard = ({ activity }) => {
             </button>
 
             {/* Imagen */}
-            <img src={activity.image} alt={activity.title} className="w-full h-60 object-cover rounded-md mb-4" />
+            <img
+              src={activity.thumbnail || "/media/default-placeholder.png"}
+              alt={activity.title}
+              className="w-full h-60 object-cover rounded-md mb-4"
+            />
 
             {/* Título */}
             <h2 className="text-3xl font-extrabold text-blue-900 mb-3">{activity.title}</h2>
 
-            {/* Fecha */}
+            {/* Fecha del Evento */}
             <div className="flex items-center text-gray-600 text-lg mb-2">
               <Calendar className="w-5 h-5 mr-2" />
-              {new Date(activity.date).toLocaleDateString()}
+              {activity.eventDate ? new Date(activity.eventDate).toLocaleDateString() : "Fecha no disponible"}
             </div>
 
             {/* Ubicación */}
-            <div className="flex items-center text-gray-800 font-semibold text-lg mb-4">
-              <MapPin className="w-5 h-5 mr-2 text-red-500" />
-              {activity.location}
-            </div>
+            {activity.location && (
+              <div className="flex items-center text-gray-800 font-semibold text-lg mb-4">
+                <MapPin className="w-5 h-5 mr-2 text-red-500" />
+                {activity.location}
+              </div>
+            )}
 
             {/* Descripción Ampliada */}
             <div className="text-gray-700 leading-relaxed bg-gray-100 p-4 rounded-md">

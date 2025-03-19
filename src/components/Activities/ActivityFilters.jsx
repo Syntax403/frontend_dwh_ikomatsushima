@@ -1,54 +1,86 @@
 import React, { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
-import { useGetActividadesQuery } from "../../redux/api/CategoryApi"; // Asegúrate de la ruta correcta
+import {
+  useGetYearsQuery,
+  useGetMonthsQuery,
+  useGetCategoriesQuery,
+} from "../../redux/api/CategoryApi";
 
-const ActivityFilters = ({ 
-  selectedCategory, 
-  setSelectedCategory, 
-  selectedYear, 
-  setSelectedYear, 
-  years, 
-  activityCount 
+// Diccionario de nombres de los meses
+const MONTH_NAMES = {
+  1: "Enero",
+  2: "Febrero",
+  3: "Marzo",
+  4: "Abril",
+  5: "Mayo",
+  6: "Junio",
+  7: "Julio",
+  8: "Agosto",
+  9: "Septiembre",
+  10: "Octubre",
+  11: "Noviembre",
+  12: "Diciembre",
+};
+
+const ActivityFilters = ({
+  selectedCategory,
+  setSelectedCategory,
+  selectedYear,
+  setSelectedYear,
+  selectedMonth,
+  setSelectedMonth,
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Llamar a la API con RTK Query
-  const { data: categories, error, isLoading } = useGetActividadesQuery();
+  // Obtener todas las categorías desde la API
+  const { data: categories = [], isLoading: loadingCategories } =
+    useGetCategoriesQuery();
 
-  // Detectar si es una pantalla pequeña
+  // Obtener años solo si hay una categoría seleccionada
+  const { data: availableYears = [], isLoading: loadingYears } =
+    useGetYearsQuery(selectedCategory, {
+      skip: !selectedCategory,
+    });
+
+  // Obtener meses solo si hay una categoría y un año seleccionados
+  const { data: availableMonths = [], isLoading: loadingMonths } =
+    useGetMonthsQuery(
+      selectedCategory && selectedYear
+        ? { category: selectedCategory, year: selectedYear }
+        : null,
+      {
+        skip: !selectedCategory || !selectedYear,
+      }
+    );
+
   useEffect(() => {
     const checkScreenSize = () => setIsMobile(window.innerWidth < 1024);
-    checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   return (
-    <div className={`${activityCount > 3 ? "lg:sticky lg:top-0 lg:z-10 bg-white" : ""}`}>
-      {/* Botón para abrir los filtros en móviles */}
+    <div>
+      {/* Botón de Filtros en Móvil */}
       {isMobile && (
         <button
           onClick={() => setShowFilters(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-md w-full mb-4"
+          className="bg-red-600 text-white p-2 rounded-md w-full"
         >
-          <Filter className="w-5 h-5" />
-          Filtrar Actividades
+          <Filter className="w-5 h-5 inline" /> Filtrar Actividades
         </button>
       )}
 
-      {/* Contenedor de filtros */}
       <div
-        className={`${
+        className={`fixed inset-y-0 left-0 w-4/5 bg-white p-6 z-50 shadow-lg transition-transform ${
           isMobile
-            ? `fixed inset-0 bg-white p-6 z-50 shadow-lg transition-transform ${
-                showFilters ? "translate-x-0" : "-translate-x-full"
-              }`
-            : "bg-white p-6 shadow-md rounded-lg lg:sticky lg:top-0"
+            ? showFilters
+              ? "translate-x-0"
+              : "-translate-x-full"
+            : "relative"
         }`}
       >
-        <br/>
-        {/* Cerrar filtros en móviles */}
         {isMobile && (
           <button
             onClick={() => setShowFilters(false)}
@@ -58,87 +90,111 @@ const ActivityFilters = ({
           </button>
         )}
 
-        {/* Filtro por Categoría */}
-        <div className="mb-4">
-          <h3 className="text-lg font-medium text-gray-700 mb-2">Categoría</h3>
-          
-          {/* Mostrar "Cargando..." si la API está en proceso */}
-          {isLoading && <p className="text-gray-500">Cargando categorías...</p>}
-          {/* Mostrar mensaje si hay un error */}
-          {error && <p className="text-red-500">Error al cargar categorías</p>}
-
+        {/* 🔹 Filtro de Categoría */}
+        <h3 className="text-lg font-medium text-gray-700 mb-2">Categoría</h3>
+        {loadingCategories ? (
+          <p className="text-gray-500 text-sm">Cargando categorías...</p>
+        ) : (
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setSelectedCategory("")}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
+              onClick={() => {
+                setSelectedCategory("");
+                setSelectedYear("");
+                setSelectedMonth("");
+              }}
+              className={`px-4 py-2 rounded-md font-medium ${
                 selectedCategory === ""
-                  ? "bg-red-600 text-white shadow-md"
-                  : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-300"
               }`}
             >
               Todas
             </button>
-
-            {/* Renderizar las categorías obtenidas de la API */}
-            {categories &&
-              categories.map((category) => (
-                <button
-                  key={category.id} // Usa 'id' en lugar del nombre para evitar claves duplicadas
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`px-4 py-2 rounded-md font-medium transition-all ${
-                    selectedCategory === category.name
-                      ? "bg-red-600 text-white shadow-md"
-                      : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
-                  }`}
-                >
-                  {category.name}
-                </button>
-              ))}
-          </div>
-        </div>
-
-        {/* Filtro por Año */}
-        <div className="mb-4">
-          <h3 className="text-lg font-medium text-gray-700 mb-2">Año</h3>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedYear("")}
-              className={`px-4 py-2 rounded-md font-medium transition-all ${
-                selectedYear === ""
-                  ? "bg-red-600 text-white shadow-md"
-                  : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
-              }`}
-            >
-              Todos
-            </button>
-            {years.map((year) => (
+            {categories.map((category) => (
               <button
-                key={year}
-                onClick={() => setSelectedYear(year)}
-                className={`px-4 py-2 rounded-md font-medium transition-all ${
-                  selectedYear === year
-                    ? "bg-red-600 text-white shadow-md"
-                    : "bg-gray-300 text-gray-800 hover:bg-red-500 hover:text-white"
+                key={category.id}
+                onClick={() => {
+                  setSelectedCategory(category.slug);
+                  setSelectedYear("");
+                  setSelectedMonth("");
+                }}
+                className={`px-4 py-2 rounded-md font-medium ${
+                  selectedCategory === category.slug
+                    ? "bg-red-600 text-white"
+                    : "bg-gray-300"
                 }`}
               >
-                {year}
+                {category.name}
               </button>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Botón para limpiar filtros */}
+        {/* 🔹 Filtro de Año (Solo se muestra si hay una categoría seleccionada y años disponibles) */}
+        {selectedCategory && availableYears.length > 0 && (
+          <>
+            <h3 className="text-lg font-medium text-gray-700 mt-4">Año</h3>
+            {loadingYears ? (
+              <p className="text-gray-500 text-sm">Cargando años...</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {availableYears.map((year) => (
+                  <button
+                    key={year}
+                    onClick={() => setSelectedYear(year)}
+                    className={`px-4 py-2 rounded-md font-medium ${
+                      selectedYear === year
+                        ? "bg-red-600 text-white"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* 🔹 Filtro de Mes (Solo se muestra si hay un año seleccionado y meses disponibles) */}
+        {selectedCategory && selectedYear && availableMonths.length > 0 && (
+          <>
+            <h3 className="text-lg font-medium text-gray-700 mt-4">Mes</h3>
+            {loadingMonths ? (
+              <p className="text-gray-500 text-sm">Cargando meses...</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {availableMonths.map((month) => (
+                  <button
+                    key={month}
+                    onClick={() => setSelectedMonth(month)}
+                    className={`px-4 py-2 rounded-md font-medium ${
+                      selectedMonth === month
+                        ? "bg-red-600 text-white"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    {MONTH_NAMES[month]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* 🔹 Botón para limpiar filtros */}
         <button
           onClick={() => {
             setSelectedCategory("");
             setSelectedYear("");
+            setSelectedMonth("");
           }}
           className="w-full mt-4 px-6 py-2 bg-gray-400 text-white font-semibold rounded-md hover:bg-gray-500 transition-all"
         >
           Limpiar Filtros
         </button>
 
-        {/* Botón para aplicar filtros en móviles */}
+        {/* 🔹 Botón para cerrar filtros en móvil */}
         {isMobile && (
           <button
             onClick={() => setShowFilters(false)}
@@ -148,14 +204,6 @@ const ActivityFilters = ({
           </button>
         )}
       </div>
-
-      {/* Fondo oscuro cuando los filtros están abiertos en móviles */}
-      {isMobile && showFilters && (
-        <div
-          onClick={() => setShowFilters(false)}
-          className="fixed inset-0 bg-black bg-opacity-50 z-30"
-        ></div>
-      )}
     </div>
   );
 };

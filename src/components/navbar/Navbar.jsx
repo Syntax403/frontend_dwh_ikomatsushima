@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import logo from "../../assets/MatsushimaChile-Logo.png"; // Ruta del logo
+import logo from "../../assets/MatsushimaChile-Logo.png";
 import { navRoutes } from "../../config/Routes";
 import { baseLinkClasses, activeLinkClasses } from "../../config/CSS";
 
@@ -8,10 +8,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // Alternar el estado del menú móvil
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
-  // Cerrar menú móvil al hacer clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -22,7 +20,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Función para renderizar los enlaces
   const renderNavLinks = () =>
     navRoutes.map((route) => (
       <NavLink
@@ -38,17 +35,14 @@ const Navbar = () => {
     ));
 
   return (
-    <nav className="bg-gray-200 text-blue-800 border-b-4 border-red-600 shadow-lg rounded-b-lg">
+    <nav className="bg-slate-200 text-blue-800 border-b-2 border-red-600 shadow-md rounded-b-lg">
       <div className="container mx-auto flex justify-between items-center p-4">
-        {/* Logo */}
         <NavLink to="/" onClick={() => setIsOpen(false)}>
-          <img src={logo} alt="IKO Matsushima Chile" className="h-14 w-auto" />
+          <img src={logo} alt="IKO Matsushima Chile" className="h-12 w-auto" />
         </NavLink>
 
-        {/* Menú para escritorio */}
-        <div className="hidden md:flex space-x-6">{renderNavLinks()}</div>
+        <div className="hidden md:flex space-x-4">{renderNavLinks()}</div>
 
-        {/* Botón para abrir/cerrar menú móvil */}
         <button
           onClick={toggleMenu}
           aria-label="Abrir menú"
@@ -57,7 +51,7 @@ const Navbar = () => {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 transition-transform duration-300"
+            className="h-7 w-7 transition-transform duration-300"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -81,14 +75,13 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Menú móvil con animación */}
       <div
         ref={menuRef}
-        className={`md:hidden bg-gray-200 rounded-b-lg shadow-lg transition-transform duration-300 ${
-          isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        className={`md:hidden bg-white rounded-b-lg shadow-lg transition-all duration-300 ${
+          isOpen ? "max-h-screen opacity-100 py-4" : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
-        <div className="px-4 pt-2 pb-4 space-y-2">{renderNavLinks()}</div>
+        <div className="px-4 space-y-2 flex flex-col items-center">{renderNavLinks()}</div>
       </div>
     </nav>
   );
