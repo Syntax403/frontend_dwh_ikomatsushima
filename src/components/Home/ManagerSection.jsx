@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo } from "react";
-import { useGetDojosQuery } from "../../redux/api/dojosApi";
-import { useGlobalContext } from "../../context/GlobalContext";
+import React, { useMemo } from "react";
+import { useDojosContext } from "../../context/DojosContext";
 import ChileFlag from "../../assets/ChileFlag.avif";
 
-// Obtener la cantidad de líneas según el grado del director
+// Función para determinar la cantidad de líneas según el grado del director
 const getLineCount = (grado) => {
-  if (!grado) return 3; // Si no tiene grado, usar valor por defecto
+  if (!grado) return 3; // Valor por defecto si no tiene grado
   if (grado >= 7) return 6; // Grado alto (ejemplo: Shihan)
   if (grado >= 5) return 5; // Grado medio
   if (grado >= 3) return 4; // Grado bajo
@@ -13,25 +12,19 @@ const getLineCount = (grado) => {
 };
 
 const ManagerSection = () => {
-  const { setLoading } = useGlobalContext();
-  const { data: dojos, error, isLoading } = useGetDojosQuery();
-
-  // Manejo del loader global
-  useEffect(() => {
-    if (setLoading) setLoading(isLoading);
-  }, [isLoading, setLoading]);
+  const { loading, directors } = useDojosContext();
 
   // Filtrar directores con status "published"
-  const directors = useMemo(() => {
-    return Array.isArray(dojos)
-      ? dojos.filter((dojo) => dojo.is_Director && dojo.status === "published")
+  const publishedDirectors = useMemo(() => {
+    return Array.isArray(directors?.results) // Asegurar que directors.results existe
+      ? directors.results.filter((director) => director.status === "published")
       : [];
-  }, [dojos]);
+  }, [directors]);
 
-  if (error) {
+  if (loading) {
     return (
-      <p className="text-center text-red-600 text-lg mt-10">
-        Error al cargar los directores.
+      <p className="text-center text-gray-600 text-lg mt-10">
+        Cargando directores...
       </p>
     );
   }
@@ -48,13 +41,13 @@ const ManagerSection = () => {
         </div>
 
         {/* Verificar si hay directores */}
-        {directors.length === 0 ? (
+        {publishedDirectors.length === 0 ? (
           <p className="text-center text-gray-600 text-lg">
             No hay directores disponibles.
           </p>
         ) : (
           <div className="space-y-6">
-            {directors.map((director) => (
+            {publishedDirectors.map((director) => (
               <div
                 key={director.id}
                 className="w-full max-w-4xl mx-auto border-2 border-black rounded-lg flex items-center justify-between p-4 bg-black shadow-md hover:shadow-lg transition-transform duration-300 hover:-translate-y-1"
@@ -80,11 +73,11 @@ const ManagerSection = () => {
                   <p className="text-red-600 text-sm sm:text-base">
                     {director.zona === "Nacional"
                       ? "Director IKO Matsushima Chile"
-                      : "Director Zona " + director.zona}
+                      : `Director Zona ${director.zona}`}
                   </p>
                 </div>
 
-                {/* Contenedor de líneas amarillas en fila (según grado) */}
+                {/* Contenedor de líneas amarillas (según grado) */}
                 <div className="flex flex-row items-center space-x-1 mx-4">
                   {[...Array(getLineCount(director.grado))].map((_, index) => (
                     <div key={index} className="w-4 h-16 bg-yellow-500"></div>

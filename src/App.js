@@ -1,22 +1,23 @@
-// App.js
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./layout/GeneralLayout";
 import { GlobalProvider } from "./context/GlobalContext";
-import Home from "./pages/Home";
-import Nosotros from "./pages/Nosotros";
-import Activities from "./pages/Actividades";
-import Noticias from "./pages/Noticias";
-import Dojos from "./pages/Dojos";
-import Kyokushin from "./pages/Kyokushin";
-import Error404 from "./pages/Error404.jsx";
 
+// Lazy loading de las páginas para mejorar el rendimiento
+const Home = lazy(() => import("./pages/Home"));
+const Nosotros = lazy(() => import("./pages/Nosotros"));
+const Activities = lazy(() => import("./pages/Actividades"));
+const Noticias = lazy(() => import("./pages/Noticias"));
+const Dojos = lazy(() => import("./pages/Dojos"));
+const Kyokushin = lazy(() => import("./pages/Kyokushin"));
+const Error404 = lazy(() => import("./pages/Error404"));
 
 const App = () => {
   return (
-      <GlobalProvider>
-        <Router>
-          <Layout>
+    <GlobalProvider>
+      <Router>
+        <Layout>
+          <Suspense fallback={<p className="text-center">Cargando...</p>}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/nosotros" element={<Nosotros />} />
@@ -26,9 +27,10 @@ const App = () => {
               <Route path="/kyokushin" element={<Kyokushin />} />
               <Route path="*" element={<Error404 />} />
             </Routes>
-          </Layout>
-        </Router>
-      </GlobalProvider>
+          </Suspense>
+        </Layout>
+      </Router>
+    </GlobalProvider>
   );
 };
 

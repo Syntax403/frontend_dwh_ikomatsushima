@@ -1,28 +1,21 @@
 import React, { createContext, useContext } from "react";
-import { BlogProvider, useBlogContext } from "./BlogContext";
-import { CategoryProvider, useCategoryContext } from "./CategoryContext";
-import { DojosProvider, useDojosContext } from "./DojosContext";
+import { BlogProvider } from "./BlogContext";
+import { CategoryProvider } from "./CategoryContext";
+import { DojosProvider } from "./DojosContext";
 
 const GlobalContext = createContext();
 
 export const useGlobalContext = () => useContext(GlobalContext);
 
 const GlobalProviderWrapper = ({ children }) => {
-  const { loading: loadingBlog } = useBlogContext();
-  const { loading: loadingCategory } = useCategoryContext();
-  const { loading: loadingDojos } = useDojosContext();
-
-  // Determinar si alguna API sigue cargando
-  const loading = loadingBlog || loadingCategory || loadingDojos;
-
   return (
-    <GlobalContext.Provider value={{ loading }}>
+    <GlobalContext.Provider value={{}}>
       {children}
     </GlobalContext.Provider>
   );
 };
 
-const GlobalProvider = ({ children }) => {
+export const GlobalProvider = ({ children }) => {
   return (
     <BlogProvider>
       <CategoryProvider>
@@ -34,4 +27,4 @@ const GlobalProvider = ({ children }) => {
   );
 };
 
-export default GlobalProvider;
+export default GlobalContext;
