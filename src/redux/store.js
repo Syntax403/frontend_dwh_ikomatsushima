@@ -10,8 +10,12 @@ export const store = configureStore({
     [blogApi.reducerPath]: blogApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(dojosApi.middleware, categoryApi.middleware, blogApi.middleware), // 🔥 Agrega categoryApi.middleware aquí
-    
+    getDefaultMiddleware().concat(
+      dojosApi.middleware,
+      categoryApi.middleware,
+      blogApi.middleware
+    ),
+  devTools: process.env.NODE_ENV !== "production", // Activa Redux DevTools solo en desarrollo
 });
 
 export default store;
