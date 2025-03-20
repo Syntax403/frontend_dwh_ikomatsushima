@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
-import {
-  useGetYearsQuery,
-  useGetMonthsQuery,
-  useGetCategoriesQuery,
-} from "../../redux/api/CategoryApi";
+import { useCategoryContext } from "../../context/CategoryContext";
 
 // Diccionario de nombres de los meses
 const MONTH_NAMES = {
@@ -33,26 +29,8 @@ const ActivityFilters = ({
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Obtener todas las categorías desde la API
-  const { data: categories = [], isLoading: loadingCategories } =
-    useGetCategoriesQuery();
-
-  // Obtener años solo si hay una categoría seleccionada
-  const { data: availableYears = [], isLoading: loadingYears } =
-    useGetYearsQuery(selectedCategory, {
-      skip: !selectedCategory,
-    });
-
-  // Obtener meses solo si hay una categoría y un año seleccionados
-  const { data: availableMonths = [], isLoading: loadingMonths } =
-    useGetMonthsQuery(
-      selectedCategory && selectedYear
-        ? { category: selectedCategory, year: selectedYear }
-        : null,
-      {
-        skip: !selectedCategory || !selectedYear,
-      }
-    );
+  // Obtener datos desde CategoryContext
+  const { loading, categories, years, months } = useCategoryContext();
 
   useEffect(() => {
     const checkScreenSize = () => setIsMobile(window.innerWidth < 1024);
@@ -92,7 +70,7 @@ const ActivityFilters = ({
 
         {/* 🔹 Filtro de Categoría */}
         <h3 className="text-lg font-medium text-gray-700 mb-2">Categoría</h3>
-        {loadingCategories ? (
+        {loading ? (
           <p className="text-gray-500 text-sm">Cargando categorías...</p>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -130,15 +108,15 @@ const ActivityFilters = ({
           </div>
         )}
 
-        {/* 🔹 Filtro de Año (Solo se muestra si hay una categoría seleccionada y años disponibles) */}
-        {selectedCategory && availableYears.length > 0 && (
+        {/* 🔹 Filtro de Año */}
+        {selectedCategory && years.length > 0 && (
           <>
             <h3 className="text-lg font-medium text-gray-700 mt-4">Año</h3>
-            {loadingYears ? (
+            {loading ? (
               <p className="text-gray-500 text-sm">Cargando años...</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {availableYears.map((year) => (
+                {years.map((year) => (
                   <button
                     key={year}
                     onClick={() => setSelectedYear(year)}
@@ -156,15 +134,15 @@ const ActivityFilters = ({
           </>
         )}
 
-        {/* 🔹 Filtro de Mes (Solo se muestra si hay un año seleccionado y meses disponibles) */}
-        {selectedCategory && selectedYear && availableMonths.length > 0 && (
+        {/* 🔹 Filtro de Mes */}
+        {selectedCategory && selectedYear && months.length > 0 && (
           <>
             <h3 className="text-lg font-medium text-gray-700 mt-4">Mes</h3>
-            {loadingMonths ? (
+            {loading ? (
               <p className="text-gray-500 text-sm">Cargando meses...</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {availableMonths.map((month) => (
+                {months.map((month) => (
                   <button
                     key={month}
                     onClick={() => setSelectedMonth(month)}

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useGetActividadesQuery } from "../redux/api/CategoryApi"; 
+import React, { useState, useMemo, useEffect } from "react";
+import { useCategoryContext } from "../context/CategoryContext";
 import ActivityCard from "../components/Activities/ActivityCard";
 import ActivityFilters from "../components/Activities/ActivityFilters";
 import heroImage from "../assets/activities-hero.jpg";
@@ -10,38 +10,36 @@ const Activities = () => {
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   
-  // 🔥 Estados para la paginación
+  // 🔥 Estado para la paginación
   const [page, setPage] = useState(1);
-  const [allActivities, setAllActivities] = useState([]); // Actividades de la página actual
 
-  // 🔥 Obtener actividades con paginación
-  const { data, isLoading, error } = useGetActividadesQuery({
-    year: selectedYear,
-    month: selectedMonth,
-    category: selectedCategory,
-    page,
-  });
+  // 🔥 Obtener actividades desde el contexto
+  const { loading, actividades } = useCategoryContext();
 
-  // 🔥 Actualizar lista de actividades cuando cambia el filtro o la página
-  useEffect(() => {
-    if (data && data.posts) {
-      setAllActivities(data.posts); // ⚡ Reemplazar actividades en cada nueva página
-    }
-  }, [data, page]);
+  // 🔥 Filtrar actividades según los parámetros seleccionados
+  const filteredActivities = useMemo(() => {
+    if (!actividades?.posts) return [];
+    return actividades.posts.filter(activity => 
+      (!selectedCategory || activity.category === selectedCategory) &&
+      (!selectedYear || activity.year === selectedYear) &&
+      (!selectedMonth || activity.month === selectedMonth)
+    );
+  }, [actividades, selectedCategory, selectedYear, selectedMonth]);
 
-  // 🔥 Resetear la paginación cuando cambia un filtro
-  useEffect(() => {
-    setPage(1); // Reiniciar página al cambiar filtros
-  }, [selectedCategory, selectedYear, selectedMonth]);
+  // 🔥 Resetear la paginación cuando cambian los filtros
+  useEffect(() => setPage(1), [selectedCategory, selectedYear, selectedMonth]);
 
-  // 🔥 Manejar la paginación
-  const nextPage = () => {
-    if (data?.next) setPage((prevPage) => prevPage + 1);
-  };
+  // 🔥 Obtener la paginación actual
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
+  const paginatedActivities = useMemo(() => {
+    const startIndex = (page - 1) * itemsPerPage;
+    return filteredActivities.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredActivities, page]);
 
-  const prevPage = () => {
-    if (data?.previous && page > 1) setPage((prevPage) => prevPage - 1);
-  };
+  // 🔥 Manejo de la paginación
+  const nextPage = () => setPage((prev) => (prev < totalPages ? prev + 1 : prev));
+  const prevPage = () => setPage((prev) => (prev > 1 ? prev - 1 : prev));
 
   return (
     <section className="bg-gray-100">
@@ -61,7 +59,7 @@ const Activities = () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Layout en grid con dos columnas */}
+        {/* Grid con Filtros y Actividades */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filtros (Columna Izquierda) */}
           <div className="lg:col-span-1 bg-white p-6 shadow-md rounded-lg">
@@ -78,14 +76,12 @@ const Activities = () => {
 
           {/* Tarjetas de Actividades (Columna Derecha) */}
           <div className="lg:col-span-3">
-            {isLoading ? (
+            {loading ? (
               <p className="text-center text-gray-600 text-lg">Cargando actividades...</p>
-            ) : error ? (
-              <p className="text-center text-red-500 text-lg">Error al cargar las actividades.</p>
-            ) : allActivities.length > 0 ? (
+            ) : paginatedActivities.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {allActivities.map((activity) => (
+                  {paginatedActivities.map((activity) => (
                     <ActivityCard key={activity.id} activity={activity} />
                   ))}
                 </div>
@@ -94,23 +90,25 @@ const Activities = () => {
                 <div className="flex justify-center mt-6 gap-4">
                   <button
                     onClick={prevPage}
-                    disabled={!data?.previous} 
+                    disabled={page === 1} 
                     className={`px-4 py-2 rounded-md font-semibold transition-all ${
-                      !data?.previous ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+                      page === 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Anterior
                   </button>
 
                   <span className="text-lg font-semibold text-gray-700">
-                    Página {page}
+                    Página {page} de {totalPages}
                   </span>
 
                   <button
                     onClick={nextPage}
-                    disabled={!data?.next} 
+                    disabled={page === totalPages || totalPages === 0} 
                     className={`px-4 py-2 rounded-md font-semibold transition-all ${
-                      !data?.next ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+                      page === totalPages || totalPages === 0
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
                     Siguiente
