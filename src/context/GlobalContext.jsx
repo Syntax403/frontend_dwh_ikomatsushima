@@ -1,18 +1,37 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext } from "react";
+import { BlogProvider, useBlogContext } from "./BlogContext";
+import { CategoryProvider, useCategoryContext } from "./CategoryContext";
+import { DojosProvider, useDojosContext } from "./DojosContext";
 
-// Crear el contexto
 const GlobalContext = createContext();
 
-// Hook para consumir el contexto
 export const useGlobalContext = () => useContext(GlobalContext);
 
-// Proveedor del contexto global
-export const GlobalProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false); // Estado global del loader
+const GlobalProviderWrapper = ({ children }) => {
+  const { loading: loadingBlog } = useBlogContext();
+  const { loading: loadingCategory } = useCategoryContext();
+  const { loading: loadingDojos } = useDojosContext();
+
+  // Determinar si alguna API sigue cargando
+  const loading = loadingBlog || loadingCategory || loadingDojos;
 
   return (
-    <GlobalContext.Provider value={{ loading, setLoading }}>
+    <GlobalContext.Provider value={{ loading }}>
       {children}
     </GlobalContext.Provider>
   );
 };
+
+const GlobalProvider = ({ children }) => {
+  return (
+    <BlogProvider>
+      <CategoryProvider>
+        <DojosProvider>
+          <GlobalProviderWrapper>{children}</GlobalProviderWrapper>
+        </DojosProvider>
+      </CategoryProvider>
+    </BlogProvider>
+  );
+};
+
+export default GlobalProvider;
